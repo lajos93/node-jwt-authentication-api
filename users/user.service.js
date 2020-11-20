@@ -14,27 +14,54 @@ module.exports = {
 };
 
 async function register(data) {
-    const { email, password } = data;
-    const user = new User({ email, password });
+    const { username, email, firstName, lastName, password } = data;
+    const user = new User({ username, email, firstName, lastName, password });
     return user.save();
 }
 
 async function authenticate({ username, password }) {
-    const user = users.find(u => u.username === username && u.password === password);
+   // const user = User.findOne(u => u.username === username && u.password === password);
 
-    if (!user) throw 'Username or password is incorrect';
+    let userData = await User.findOne({ username }, function(err, user) {
+        if (err) {
+          console.error(err);
+          throw 'Internal error please try again';
+        } else if (!user) {
+          throw 'Incorrect email or password';
+        } else {
+          user.isCorrectPassword(password, function(err, same) {
+            if (err) {
+              throw 'Incorrect email or password';
+            } else if (!same) {
+              throw 'Incorrect email or password';
+            } else {            
+            }
+          });
+        }
+      });
 
-    // create a jwt token that is valid for 7 days
-    const token = jwt.sign({ sub: user.id }, config.secret, { expiresIn: '7d' });
+      return userData._doc,getToken(userData._doc);
+}
 
-    return {
-        ...omitPassword(user),
-        token
-    };
+function getToken(userData){
+  const token = jwt.sign({ sub: userData._id }, config.secret, { expiresIn: '7d' });
+  return {
+    ...omitPassword(userData)
+    ,token
+  };
 }
 
 async function getAll() {
-    return users.map(u => omitPassword(u));
+    //return users.map(u => omitPassword(u));
+    return  User.find({}, function(err, users) {
+      var userMap = {};
+  
+      users.forEach(function(user) {
+        userMap[user._id] = user;
+      });
+  
+      return userMap;  
+    });
 }
 
 // helper functions

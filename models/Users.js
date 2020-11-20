@@ -3,7 +3,10 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const UserSchema = new mongoose.Schema({
+  username: {type: String, required: true},
   email: {type: String, lowercase: true, required: [true, "can't be blank"], match: [/\S+@\S+\.\S+/, 'is invalid'], index: true},
+  firstName: {type: String},
+  lastName: {type:String},
   password: { type: String, required: true }
 });
 
