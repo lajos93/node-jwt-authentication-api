@@ -1,13 +1,33 @@
 ﻿const config = require('config.json');
 const jwt = require('jsonwebtoken');
 
+// User schema
+const User = require('../models/Users.js');
+
 // users hardcoded for simplicity, store in a db for production applications
 const users = [{ id: 1, username: 'test', password: 'test', firstName: 'Test', lastName: 'User' }];
 
 module.exports = {
+    register,
     authenticate,
     getAll
 };
+
+async function register(req,res) {
+    const { email, password } = req.body;
+    const user = new User({ email, password });
+
+    try {
+        // if you are using await, don't pass it a callback
+        const saveUser = await user.save();
+        return res.send({
+            email: saveUser.email
+        });
+    } catch (error) {
+        // use try/catch to handle error instead of error first parameter in callback
+        return res.status(400).send(error);
+    }
+}
 
 async function authenticate({ username, password }) {
     const user = users.find(u => u.username === username && u.password === password);
