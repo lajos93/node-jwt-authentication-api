@@ -19,7 +19,9 @@ function authenticate(req, res, next) {
 }
 
 function register(req, res, next) {
-    userService.register(req,res)
+    userService.register(req.body)
+    .then(reggedUser => res.json(reggedUser))
+    .catch(next);
 }
 
 function getAll(req, res, next) {

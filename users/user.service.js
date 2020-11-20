@@ -13,20 +13,10 @@ module.exports = {
     getAll
 };
 
-async function register(req,res) {
-    const { email, password } = req.body;
+async function register(data) {
+    const { email, password } = data;
     const user = new User({ email, password });
-
-    try {
-        // if you are using await, don't pass it a callback
-        const saveUser = await user.save();
-        return res.send({
-            email: saveUser.email
-        });
-    } catch (error) {
-        // use try/catch to handle error instead of error first parameter in callback
-        return res.status(400).send(error);
-    }
+    return user.save();
 }
 
 async function authenticate({ username, password }) {

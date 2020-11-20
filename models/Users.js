@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const UserSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
+  email: {type: String, lowercase: true, required: [true, "can't be blank"], match: [/\S+@\S+\.\S+/, 'is invalid'], index: true},
   password: { type: String, required: true }
 });
 
@@ -36,6 +36,13 @@ UserSchema.pre('save', function(next) {
     next();
   }
 });
+
+//Omit password field in the response
+UserSchema.methods.toJSON = function() {
+  var userData = this.toObject();
+  delete userData.password;
+  return userData;
+ }
 
 
 module.exports = mongoose.model('User', UserSchema);
